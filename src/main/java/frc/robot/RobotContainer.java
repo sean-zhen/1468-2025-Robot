@@ -17,10 +17,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -43,7 +44,13 @@ public class RobotContainer {
   private final Drive drive;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  //private final CommandXboxController controller = new CommandXboxController(0);
+
+  final Joystick driverLeftJoystick = new Joystick(0);
+  final Joystick driverRightJoystick = new Joystick(1);
+  
+  final Joystick operatorJoystick = new Joystick(3);  
+  final Joystick testOprJoystick = new Joystick(2);  // this was for testing purposes only - Tom 2024
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -115,37 +122,36 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    // Driver Buttons
+    final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 1);    //TODO: Update button number, confirm with Daniel which button -Sean
+    final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 2);     //TODO: Remove this if not necessary for 2025 game -Sean
+    final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 3);   //TODO: Remove this if not necessary -Sean
+
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -driverLeftJoystick.getY(),
+            () -> -driverLeftJoystick.getX(),
+            () -> -driverRightJoystick.getX()));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
-
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
+    // Reset gyro to 0°
+    resetGyro.onTrue(
+        Commands.runOnce(
+            () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new Rotation2d())), 
+            drive)
                 .ignoringDisable(true));
+
+    // Switch to X pattern
+    xPattern.onTrue(Commands.runOnce(drive::stopWithX, drive));     //TODO: Remove this if not necessary for 2025 game -Sean 
+                
+    // Lock to 0° when held                         //TODO: Remove this if not necessary -Sean
+    lockToZero.whileTrue(
+        DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -driverLeftJoystick.getY(),
+                () -> -driverLeftJoystick.getX(),
+                () -> new Rotation2d()));
   }
 
   /**
