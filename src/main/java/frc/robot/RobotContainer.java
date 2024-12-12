@@ -44,8 +44,6 @@ public class RobotContainer {
   private final Drive drive;
 
   // Controller
-  //private final CommandXboxController controller = new CommandXboxController(0);
-
   final Joystick driverLeftJoystick = new Joystick(0);
   final Joystick driverRightJoystick = new Joystick(1);
   
@@ -122,37 +120,39 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // Driver Buttons
-    final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 1);    //TODO: Update button number, confirm with Daniel which button -Sean
-    final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 2);     //TODO: Remove this if not necessary for 2025 game -Sean
-    final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 3);   //TODO: Remove this if not necessary -Sean
+       // Driver Buttons
+       final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 1);    //TODO: Update button number, confirm with Daniel which button -Sean
+       final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 2);     //TODO: Remove this if not necessary for 2025 game -Sean
+       final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 3);   //TODO: Remove this if not necessary -Sean
+   
+       // Default command, normal field-relative drive
+       drive.setDefaultCommand(
+           DriveCommands.joystickDrive(
+               drive,
+               () -> -driverLeftJoystick.getY(),
+               () -> -driverLeftJoystick.getX(),
+               () -> -driverRightJoystick.getX()));
+   
+       // Reset gyro to 0°
+       resetGyro.onTrue(
+           Commands.runOnce(
+               () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new Rotation2d())), 
+               drive)
+                   .ignoringDisable(true));
+   
+       // Switch to X pattern
+       xPattern.onTrue(Commands.runOnce(drive::stopWithX, drive));     //TODO: Remove this if not necessary for 2025 game -Sean 
+                   
+       // Lock to 0° when held                         //TODO: Remove this if not necessary -Sean
+       lockToZero.whileTrue(
+           DriveCommands.joystickDriveAtAngle(
+                   drive,
+                   () -> -driverLeftJoystick.getY(),
+                   () -> -driverLeftJoystick.getX(),
+                   () -> new Rotation2d()));
+}
+   
 
-    // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -driverLeftJoystick.getY(),
-            () -> -driverLeftJoystick.getX(),
-            () -> -driverRightJoystick.getX()));
-
-    // Reset gyro to 0°
-    resetGyro.onTrue(
-        Commands.runOnce(
-            () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new Rotation2d())), 
-            drive)
-                .ignoringDisable(true));
-
-    // Switch to X pattern
-    xPattern.onTrue(Commands.runOnce(drive::stopWithX, drive));     //TODO: Remove this if not necessary for 2025 game -Sean 
-                
-    // Lock to 0° when held                         //TODO: Remove this if not necessary -Sean
-    lockToZero.whileTrue(
-        DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -driverLeftJoystick.getY(),
-                () -> -driverLeftJoystick.getX(),
-                () -> new Rotation2d()));
-  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
