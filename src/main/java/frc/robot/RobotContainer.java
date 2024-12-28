@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import static frc.robot.subsystems.vision.VisionConstants.*;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
+import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -31,6 +33,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -42,6 +48,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
 	// Subsystems
 	private final Drive drive;
+	private final Vision vision;
 
 	// Controller
 	final Joystick driverLeftJoystick = new Joystick(0);
@@ -64,6 +71,11 @@ public class RobotContainer {
 					new ModuleIOTalonFX(TunerConstants.FrontRight),
 					new ModuleIOTalonFX(TunerConstants.BackLeft),
 					new ModuleIOTalonFX(TunerConstants.BackRight));
+				vision = new Vision(
+                	drive::addVisionMeasurement,
+					new VisionIOPhotonVision(camera0Name, robotToCamera0),
+					new VisionIOPhotonVision(camera1Name, robotToCamera1));
+				
 				break;
 
 			case SIM:
@@ -74,6 +86,11 @@ public class RobotContainer {
 					new ModuleIOSim(TunerConstants.FrontRight),
 					new ModuleIOSim(TunerConstants.BackLeft),
 					new ModuleIOSim(TunerConstants.BackRight));
+				vision = new Vision(
+                	drive::addVisionMeasurement,
+                	new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
+                	new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
+				
 				break;
 
 			default:
@@ -84,6 +101,11 @@ public class RobotContainer {
 					new ModuleIO() {},
 					new ModuleIO() {},
 					new ModuleIO() {});
+				vision = new Vision(
+					drive::addVisionMeasurement, 
+					new VisionIO() {}, 
+					new VisionIO() {});
+				
 				break;
     	}
 
@@ -113,7 +135,8 @@ public class RobotContainer {
         final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 1);    //TODO: Update button number, confirm with Daniel which button -Sean
         final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 2);     //TODO: Remove this if not necessary for 2025 game -Sean
         final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 3);   //TODO: Remove this if not necessary -Sean
-		
+		final JoystickButton autoAim = new JoystickButton(driverRightJoystick,4);
+
         // Default command, normal field-relative drive
         drive.setDefaultCommand(
         	DriveCommands.joystickDrive(
@@ -139,6 +162,20 @@ public class RobotContainer {
                 () -> -driverLeftJoystick.getY(),
                 () -> -driverLeftJoystick.getX(),
                 () -> new Rotation2d()));
+
+		// // Auto aim command example
+    	// @SuppressWarnings("resource")
+    	// PIDController aimController = new PIDController(0.2, 0.0, 0.0);
+    	// aimController.enableContinuousInput(-Math.PI, Math.PI);
+		// autoAim.whileTrue(
+        //     Commands.startRun(
+        //         () -> {
+        //           aimController.reset();
+        //         },
+        //         () -> {
+        //           drive.run(0.0, aimController.calculate(vision.getTargetX(0).getRadians()));
+        //         },
+        //         drive));
   	}
    
 	/**
