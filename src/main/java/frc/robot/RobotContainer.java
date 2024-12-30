@@ -153,8 +153,8 @@ public class RobotContainer {
             () -> -driverLeftJoystick.getX(),
             () -> new Rotation2d()));
 
-    // Drive to AprilTag
-    driveToAprilTag.whileTrue(new DriveToAprilTagCommand(drive, s_Vision));
+    // Drive to AprilTag example: ID 14 (blue center stage)
+    driveToAprilTag.whileTrue(new DriveToAprilTagCommand(drive, s_Vision, 14));
   }
 
   /**

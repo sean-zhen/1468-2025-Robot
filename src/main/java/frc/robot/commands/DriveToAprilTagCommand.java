@@ -9,12 +9,14 @@ import frc.robot.subsystems.drive.*;
 public class DriveToAprilTagCommand extends Command {
     private final Drive m_drive;
     private final VisionSubsystem m_vision;
+    private final int aprilTagId;
 
-    public DriveToAprilTagCommand(Drive drive, VisionSubsystem vision) {
+    public DriveToAprilTagCommand(Drive drive, VisionSubsystem vision, int id) {
         m_drive = drive;
         addRequirements(m_drive);
         m_vision = vision;
         addRequirements(m_vision);
+        aprilTagId = id;
     }
 
     // Called when the command is initially scheduled.
