@@ -32,7 +32,7 @@ public class VisionSubsystem extends SubsystemBase{
     // Initialize variables (default if aprilTagResults is empty)
     private boolean aprilTagHasTargets = false;
     private boolean multipleAprilTags = false;
-    private String aprilTagsAllIds = "";
+    private String aprilTagsAllIdsString = "";
     private int aprilTagBestTargetId = 9999;    // This indicates that something is wrong with the AprilTag camera
     private double aprilTagTargetYaw = 0;
     private double aprilTagTargetPitch = 0;
@@ -60,7 +60,8 @@ public class VisionSubsystem extends SubsystemBase{
                 if (aprilTagTargets.size() > 1) {
                     // Multiple AprilTags detected
                     multipleAprilTags = true;
-                    aprilTagsAllIds = aprilTagTargets.stream().mapToInt(PhotonTrackedTarget::getFiducialId).toArray().toString();
+                    int [] aprilTagsAllIdsArray = aprilTagTargets.stream().mapToInt(PhotonTrackedTarget::getFiducialId).toArray();
+                    aprilTagsAllIdsString = aprilTagsAllIdsArray.toString();
                 }
                 else {
                     // Only one AprilTag detected
@@ -85,7 +86,7 @@ public class VisionSubsystem extends SubsystemBase{
         // Publish to SmartDashboard
         SmartDashboard.putBoolean("AprilTag Dectected?", aprilTagHasTargets);
         SmartDashboard.putBoolean("Multiple AprilTags?", multipleAprilTags);
-        SmartDashboard.putString("Multiple AprilTag IDs", aprilTagsAllIds);
+        SmartDashboard.putString("Multiple AprilTag IDs", aprilTagsAllIdsString);
         SmartDashboard.putNumber("Best AprilTag ID", aprilTagBestTargetId);
         SmartDashboard.putNumber("AprilTag Yaw", aprilTagTargetYaw);
         SmartDashboard.putNumber("AprilTag Pitch", aprilTagTargetPitch);
