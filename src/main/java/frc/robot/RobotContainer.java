@@ -135,8 +135,8 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -driverLeftJoystick.getY(),
-            () -> -driverLeftJoystick.getX(),
+            () -> driverLeftJoystick.getY(),
+            () -> driverLeftJoystick.getX(),
             () -> -driverRightJoystick.getX()));
 
     // Reset gyro to 0°
@@ -149,8 +149,8 @@ public class RobotContainer {
     lockToZero.whileTrue(
         DriveCommands.joystickDriveAtAngle(
             drive,
-            () -> -driverLeftJoystick.getY(),
-            () -> -driverLeftJoystick.getX(),
+            () -> driverLeftJoystick.getY(),
+            () -> driverLeftJoystick.getX(),
             () -> new Rotation2d()));
 
     // Drive to AprilTag example: ID 14 (blue center stage)
