@@ -143,8 +143,8 @@ public class RobotContainer {
     lockToZero.whileTrue(
         DriveCommands.joystickDriveAtAngle(
             drive,
-            () -> -driverLeftJoystick.getY(),
-            () -> -driverLeftJoystick.getX(),
+            () -> driverLeftJoystick.getY(),
+            () -> driverLeftJoystick.getX(),
             () -> new Rotation2d()));
   }
 
