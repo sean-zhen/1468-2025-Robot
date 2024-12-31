@@ -129,8 +129,8 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -driverLeftJoystick.getY(),
-            () -> -driverLeftJoystick.getX(),
+            () -> driverLeftJoystick.getY(),
+            () -> driverLeftJoystick.getX(),
             () -> -driverRightJoystick.getX()));
 
     // Reset gyro to 0°
