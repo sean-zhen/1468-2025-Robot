@@ -60,23 +60,34 @@ public class VisionSubsystem extends SubsystemBase{
                 if (aprilTagTargets.size() > 1) {
                     // Multiple AprilTags detected
                     multipleAprilTags = true;
-                    int [] aprilTagsAllIdsArray = aprilTagTargets.stream().mapToInt(PhotonTrackedTarget::getFiducialId).toArray();
-                    aprilTagsAllIdsString = aprilTagsAllIdsArray.toString();
+
+                    // Create string of all AprilTag IDs
+                    StringBuilder aprilTagsAllIdsString = new StringBuilder();
+                    aprilTagTargets.forEach(target -> {
+                        int id = target.getFiducialId();
+                        if (aprilTagsAllIdsString.length() > 0) {
+                            aprilTagsAllIdsString.append(", ");
+                        }
+                        aprilTagsAllIdsString.append(id);
+                    });
                 }
                 else {
                     // Only one AprilTag detected
                     multipleAprilTags = false;
+                    aprilTagsAllIdsString = "";
                 }
 
-                // Gets best target based on area (for multiple targets)
+                // Gets best target (for multiple targets)
                 aprilTagBestTargetId = aprilTagResult.getBestTarget().getFiducialId();
                 aprilTagTargetYaw = aprilTagResult.getBestTarget().getYaw();
                 aprilTagTargetPitch = aprilTagResult.getBestTarget().getPitch();
                 aprilTagTargetArea = aprilTagResult.getBestTarget().getArea();
             }
             else {
+                // No AprilTags detected by camera
                 aprilTagHasTargets = false;
                 multipleAprilTags = false;
+                aprilTagsAllIdsString = "";
                 aprilTagBestTargetId = 99;
                 aprilTagTargetYaw = 0;
                 aprilTagTargetPitch = 0;
@@ -91,10 +102,6 @@ public class VisionSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("AprilTag Yaw", aprilTagTargetYaw);
         SmartDashboard.putNumber("AprilTag Pitch", aprilTagTargetPitch);
         SmartDashboard.putNumber("AprilTag Area", aprilTagTargetArea);
-        
-        
-        // Skew for notes???
-        // aprilTagTargetSkew = aprilTagResult.getBestTarget().getSkew();
         }
     }
 
@@ -102,15 +109,4 @@ public class VisionSubsystem extends SubsystemBase{
     public boolean aprilTagDectected() {
         return aprilTagHasTargets;
     }
-
-    // public boolean hasValidTargets(PhotonPipelineResult result) {
-    //     return result != null && result.hasTargets();
-    // }
-
-    // public double getBestTargetYaw(PhotonPipelineResult result) {
-    //     if (hasValidTargets(result)) {
-    //         return result.getBestTarget().getYaw();
-    //     }
-    //     return 0.0; // Default value if no targets
-    // }
 }
