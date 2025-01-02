@@ -24,7 +24,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveToAprilTagCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -42,6 +44,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+
+  final VisionSubsystem s_Vision = new VisionSubsystem();
 
   // Controller
   final Joystick driverLeftJoystick = new Joystick(0);
@@ -121,7 +125,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Driver Buttons
-        final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 7);    //TODO: Confirm with Daniel which button -Sean
+        final JoystickButton driveToAprilTag = new JoystickButton(driverLeftJoystick, 1);
+
+        final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 7);
         final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 8);     //TODO: Remove this if not necessary -Sean
         final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 9);   //TODO: Remove this if not necessary -Sean
     
@@ -146,6 +152,9 @@ public class RobotContainer {
             () -> driverLeftJoystick.getY(),
             () -> driverLeftJoystick.getX(),
             () -> new Rotation2d()));
+
+    // Drive to AprilTag example: ID 14 (blue center stage)
+    driveToAprilTag.whileTrue(new DriveToAprilTagCommand(drive, s_Vision, 14));
   }
 
   /**
