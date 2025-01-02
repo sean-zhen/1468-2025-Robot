@@ -17,7 +17,6 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase{
     // Create PhotonCamera objects
-    // TODO: Change camera name in settings to match
     private final PhotonCamera aprilTagCamera = new PhotonCamera("AprilTagCamera");
     private final Transform3d robotToAprilTagCamera = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));     // TODO: Change values. Cam mounted facing forward, half a meter forward of center, half a meter up from center
     private final PoseStrategy poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;    // TODO: Ensure that your camera is calibrated and 3D mode is enabled. Read https://docs.photonvision.org/en/v2025.0.0-beta-8/docs/apriltag-pipelines/multitag.html#multitag-localization
@@ -26,8 +25,8 @@ public class VisionSubsystem extends SubsystemBase{
     // Construct PhotonPoseEstimator
     PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, poseStrategy, robotToAprilTagCamera);
 
-    // TODO: Implement once aprilTagCamera fully works
-    // private final PhotonCamera noteCamera = new PhotonCamera("NoteCamera");
+    // TODO: Change camera name in settings to match
+    private final PhotonCamera noteCamera = new PhotonCamera("NoteCamera");
 
     // Initialize variables (default if aprilTagResults is empty)
     private boolean aprilTagHasTargets = false;
@@ -38,12 +37,20 @@ public class VisionSubsystem extends SubsystemBase{
     private double aprilTagTargetPitch = 0;
     private double aprilTagTargetArea = 0;
 
+    private boolean noteHasTargets = false;
+    private boolean multipleNotes = false;
+    private double noteTargetYaw = 0;
+    private double noteTargetPitch = 0;
+    private double noteTargetArea = 0;
+
     public VisionSubsystem() {
         // Additional initialization if needed
     }
 
     @Override
     public void periodic() {
+        // AprilTag camera
+
         // Read in relevant data from the Camera
         var aprilTagResults = aprilTagCamera.getAllUnreadResults();
         if (!aprilTagResults.isEmpty()) {
@@ -93,7 +100,7 @@ public class VisionSubsystem extends SubsystemBase{
                 aprilTagTargetPitch = 0;
                 aprilTagTargetArea = 0;
             }
-
+        }
         // Publish to SmartDashboard
         SmartDashboard.putBoolean("AprilTag Dectected?", aprilTagHasTargets);
         SmartDashboard.putBoolean("Multiple AprilTags?", multipleAprilTags);
@@ -102,7 +109,51 @@ public class VisionSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("AprilTag Yaw", aprilTagTargetYaw);
         SmartDashboard.putNumber("AprilTag Pitch", aprilTagTargetPitch);
         SmartDashboard.putNumber("AprilTag Area", aprilTagTargetArea);
+
+        // Note Camera
+
+        // Read in relevant data from the Camera
+        var noteResults = noteCamera.getAllUnreadResults();
+        if (!noteResults.isEmpty()) {
+            // Camera processed a new frame since last
+            // Get the last one in the list.
+            var noteResult = noteResults.get(noteResults.size() - 1);
+
+            if (noteResult.hasTargets()) {
+                // At least one note was seen by the camera
+                noteHasTargets = true;
+
+                // Get a list of currently tracked targets.
+                List<PhotonTrackedTarget> noteTargets = noteResult.getTargets();
+                if (noteTargets.size() > 1) {
+                    // Multiple notes detected
+                    multipleNotes = true;
+                }
+                else {
+                    // Only one note detected
+                    multipleNotes = false;
+                }
+
+                // Gets best target (for multiple targets)
+                noteTargetYaw = noteResult.getBestTarget().getYaw();
+                noteTargetPitch = noteResult.getBestTarget().getPitch();
+                noteTargetArea = noteResult.getBestTarget().getArea();
+            }
+            else {
+                // No notes detected by camera
+                noteHasTargets = false;
+                multipleNotes = false;
+                noteTargetYaw = 0;
+                noteTargetPitch = 0;
+                noteTargetArea = 0;
+            }
         }
+        // Publish to SmartDashboard
+        SmartDashboard.putBoolean("Note Dectected?", noteHasTargets);
+        SmartDashboard.putBoolean("Multiple Notes?", multipleNotes);
+        SmartDashboard.putNumber("Note Yaw", noteTargetYaw);
+        SmartDashboard.putNumber("Note Pitch", noteTargetPitch);
+        SmartDashboard.putNumber("Note Area", noteTargetArea);
     }
 
     // Getter methods to access target data
