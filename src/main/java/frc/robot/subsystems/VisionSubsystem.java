@@ -25,13 +25,12 @@ public class VisionSubsystem extends SubsystemBase{
     // Construct PhotonPoseEstimator
     PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, poseStrategy, robotToAprilTagCamera);
 
-    // TODO: Change camera name in settings to match
     private final PhotonCamera noteCamera = new PhotonCamera("NoteCamera");
 
     // Initialize variables (default if aprilTagResults is empty)
     private boolean aprilTagHasTargets = false;
     private boolean multipleAprilTags = false;
-    private String aprilTagsAllIdsString = "";
+    private String aprilTagsAllIdsString = "Nope";
     private int aprilTagBestTargetId = 9999;    // This indicates that something is wrong with the AprilTag camera
     private double aprilTagTargetYaw = 0;
     private double aprilTagTargetPitch = 0;
@@ -67,21 +66,21 @@ public class VisionSubsystem extends SubsystemBase{
                 if (aprilTagTargets.size() > 1) {
                     // Multiple AprilTags detected
                     multipleAprilTags = true;
-
-                    // Create string of all AprilTag IDs
-                    StringBuilder aprilTagsAllIdsString = new StringBuilder();
-                    aprilTagTargets.forEach(target -> {
-                        int id = target.getFiducialId();
-                        if (aprilTagsAllIdsString.length() > 0) {
-                            aprilTagsAllIdsString.append(", ");
-                        }
-                        aprilTagsAllIdsString.append(id);
-                    });
+                    aprilTagsAllIdsString = "Not finished yet oops";
+                    // // Create string of all AprilTag IDs
+                    // StringBuilder aprilTagsAllIdsString = new StringBuilder();
+                    // aprilTagTargets.forEach(target -> {
+                    //     int id = target.getFiducialId();
+                    //     if (aprilTagsAllIdsString.length() > 0) {
+                    //         aprilTagsAllIdsString.append(", ");
+                    //     }
+                    //     aprilTagsAllIdsString.append(id);
+                    // });
                 }
                 else {
                     // Only one AprilTag detected
                     multipleAprilTags = false;
-                    aprilTagsAllIdsString = "";
+                    aprilTagsAllIdsString = "Only one";
                 }
 
                 // Gets best target (for multiple targets)
@@ -94,7 +93,7 @@ public class VisionSubsystem extends SubsystemBase{
                 // No AprilTags detected by camera
                 aprilTagHasTargets = false;
                 multipleAprilTags = false;
-                aprilTagsAllIdsString = "";
+                aprilTagsAllIdsString = "Nope";
                 aprilTagBestTargetId = 99;
                 aprilTagTargetYaw = 0;
                 aprilTagTargetPitch = 0;

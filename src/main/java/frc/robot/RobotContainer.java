@@ -127,7 +127,7 @@ public class RobotContainer {
     // Driver Buttons
         final JoystickButton driveToAprilTag = new JoystickButton(driverLeftJoystick, 1);
 
-        final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 7);    //TODO: Confirm with Daniel which button -Sean
+        final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 7);
         final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 8);     //TODO: Remove this if not necessary -Sean
         final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 9);   //TODO: Remove this if not necessary -Sean
     
