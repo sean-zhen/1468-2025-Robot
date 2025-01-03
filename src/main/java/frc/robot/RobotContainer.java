@@ -24,7 +24,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.DriveToAprilTagCommand;
+import frc.robot.commands.DriveToNoteCommand;
+import frc.robot.commands.LockToAprilTagCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.Drive;
@@ -125,8 +126,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Driver Buttons
-        final JoystickButton driveToAprilTag = new JoystickButton(driverLeftJoystick, 1);
+        final JoystickButton driveToNote = new JoystickButton(driverLeftJoystick, 1);
 
+        final JoystickButton lockToAprilTag = new JoystickButton(driverRightJoystick, 1);
         final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 7);
         final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 8);     //TODO: Remove this if not necessary -Sean
         final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 9);   //TODO: Remove this if not necessary -Sean
@@ -145,7 +147,7 @@ public class RobotContainer {
     // Switch to X pattern
     xPattern.onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Lock to 0° when A button is held
+    // Lock to 0°
     lockToZero.whileTrue(
         DriveCommands.joystickDriveAtAngle(
             drive,
@@ -153,8 +155,11 @@ public class RobotContainer {
             () -> driverLeftJoystick.getX(),
             () -> new Rotation2d()));
 
-    // Drive to AprilTag example: ID 14 (blue center stage)
-    driveToAprilTag.whileTrue(new DriveToAprilTagCommand(drive, s_Vision, 14));
+    // Lock to AprilTag example: ID 7 (blue speaker center)
+    lockToAprilTag.whileTrue(new LockToAprilTagCommand(drive, s_Vision, 7));
+
+    // Drive to note example
+    driveToNote.whileTrue(new DriveToNoteCommand(drive, s_Vision));
   }
 
   /**

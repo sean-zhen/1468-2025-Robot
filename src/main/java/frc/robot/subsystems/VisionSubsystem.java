@@ -18,14 +18,15 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class VisionSubsystem extends SubsystemBase{
     // Create PhotonCamera objects
     private final PhotonCamera aprilTagCamera = new PhotonCamera("AprilTagCamera");
-    private final Transform3d robotToAprilTagCamera = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));     // TODO: Change values. Cam mounted facing forward, half a meter forward of center, half a meter up from center
-    private final PoseStrategy poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;    // TODO: Ensure that your camera is calibrated and 3D mode is enabled. Read https://docs.photonvision.org/en/v2025.0.0-beta-8/docs/apriltag-pipelines/multitag.html#multitag-localization
-    private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();    // TODO: // The field from AprilTagFields will be different depending on the game.
+    private final PhotonCamera noteCamera = new PhotonCamera("NoteCamera");
 
     // Construct PhotonPoseEstimator
+    private final Transform3d robotToAprilTagCamera = new Transform3d(new Translation3d(0.2176272, 0.0882396, 0.2332736), new Rotation3d(0,-0.294524311,-0.078644536));     // TODO: Change values when moving camera; 1/3/25: X: 8.568 in, Y: 3.474 in, Z: 9.184 in, Yaw: -4.506 degrees, Pitch = -16.875 degrees, Roll: 0
+    // private final Transform3d robotToAprilTagCamera = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));     // EXAMPLE: Cam mounted facing forward, half a meter forward of center, half a meter up from center
+    private final PoseStrategy poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;    // TODO: Ensure that your camera is calibrated and 3D mode is enabled. Read https://docs.photonvision.org/en/v2025.0.0-beta-8/docs/apriltag-pipelines/multitag.html#multitag-localization
+    private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();    // TODO: // The field from AprilTagFields will be different depending on the game.
+    
     PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, poseStrategy, robotToAprilTagCamera);
-
-    private final PhotonCamera noteCamera = new PhotonCamera("NoteCamera");
 
     // Initialize variables (default if aprilTagResults is empty)
     private boolean aprilTagHasTargets = false;
@@ -158,5 +159,17 @@ public class VisionSubsystem extends SubsystemBase{
     // Getter methods to access target data
     public boolean aprilTagDectected() {
         return aprilTagHasTargets;
+    }
+
+    public boolean noteDetected() {
+        return noteHasTargets;
+    }
+
+    public double getNoteTargetYaw() {
+        return noteTargetYaw;
+    }
+
+    public double getNoteTargetArea () {
+        return noteTargetArea;
     }
 }
