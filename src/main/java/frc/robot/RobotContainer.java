@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveToNoteCommand;
-import frc.robot.commands.LockToAprilTagCommand;
+import frc.robot.commands.AimAtAprilTagCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.Drive;
@@ -128,7 +128,7 @@ public class RobotContainer {
     // Driver Buttons
         final JoystickButton driveToNote = new JoystickButton(driverLeftJoystick, 1);
 
-        final JoystickButton lockToAprilTag = new JoystickButton(driverRightJoystick, 1);
+        final JoystickButton aimAtAprilTag = new JoystickButton(driverRightJoystick, 1);
         final JoystickButton resetGyro = new JoystickButton(driverRightJoystick, 7);
         final JoystickButton xPattern = new JoystickButton(driverRightJoystick, 8);     //TODO: Remove this if not necessary -Sean
         final JoystickButton lockToZero = new JoystickButton(driverRightJoystick, 9);   //TODO: Remove this if not necessary -Sean
@@ -137,8 +137,8 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> driverLeftJoystick.getY(),
-            () -> driverLeftJoystick.getX(),
+            () -> -driverLeftJoystick.getY(),
+            () -> -driverLeftJoystick.getX(),
             () -> -driverRightJoystick.getX()));
 
     // Reset gyro to 0°
@@ -151,12 +151,12 @@ public class RobotContainer {
     lockToZero.whileTrue(
         DriveCommands.joystickDriveAtAngle(
             drive,
-            () -> driverLeftJoystick.getY(),
-            () -> driverLeftJoystick.getX(),
+            () -> -driverLeftJoystick.getY(),
+            () -> -driverLeftJoystick.getX(),
             () -> new Rotation2d()));
 
     // Lock to AprilTag example: ID 7 (blue speaker center)
-    lockToAprilTag.whileTrue(new LockToAprilTagCommand(drive, s_Vision, 7));
+    aimAtAprilTag.whileTrue(new AimAtAprilTagCommand(drive, s_Vision, 7));
 
     // Drive to note example
     driveToNote.whileTrue(new DriveToNoteCommand(drive, s_Vision));

@@ -6,12 +6,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.*;
 
-public class LockToAprilTagCommand extends Command {
+public class AimAtAprilTagCommand extends Command {
     private final Drive m_drive;
     private final VisionSubsystem m_vision;
     private final int aprilTagId;
 
-    public LockToAprilTagCommand(Drive drive, VisionSubsystem vision, int id) {
+    public AimAtAprilTagCommand(Drive drive, VisionSubsystem vision, int id) {
         m_drive = drive;
         addRequirements(m_drive);
         m_vision = vision;

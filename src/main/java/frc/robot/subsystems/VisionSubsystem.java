@@ -68,15 +68,6 @@ public class VisionSubsystem extends SubsystemBase{
                     // Multiple AprilTags detected
                     multipleAprilTags = true;
                     aprilTagsAllIdsString = "Not finished yet oops";
-                    // // Create string of all AprilTag IDs
-                    // StringBuilder aprilTagsAllIdsString = new StringBuilder();
-                    // aprilTagTargets.forEach(target -> {
-                    //     int id = target.getFiducialId();
-                    //     if (aprilTagsAllIdsString.length() > 0) {
-                    //         aprilTagsAllIdsString.append(", ");
-                    //     }
-                    //     aprilTagsAllIdsString.append(id);
-                    // });
                 }
                 else {
                     // Only one AprilTag detected
