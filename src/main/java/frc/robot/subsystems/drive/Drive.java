@@ -365,4 +365,23 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
   }
+
+  // TODO: Add this to official code
+  /**Runs the swerve with specified drive and rotation speeds. */
+  public void driveWithSpeeds (double xSpeed, double ySpeed, double omega, boolean isFieldRelative) {
+    // Convert inputs to chassis speeds
+    ChassisSpeeds speeds = isFieldRelative
+    ? ChassisSpeeds.fromFieldRelativeSpeeds(
+        xSpeed * getMaxLinearSpeedMetersPerSec(),
+        ySpeed * getMaxLinearSpeedMetersPerSec(),
+        omega * getMaxAngularSpeedRadPerSec(),
+        getRotation())
+    : new ChassisSpeeds(
+        xSpeed * getMaxLinearSpeedMetersPerSec(),
+        ySpeed * getMaxLinearSpeedMetersPerSec(),
+        omega * getMaxAngularSpeedRadPerSec());
+
+    // Pass the chassis speeds to your swerve drive system
+    runVelocity(speeds);
+  }
 }
