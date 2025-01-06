@@ -152,6 +152,29 @@ public class VisionSubsystem extends SubsystemBase{
         return aprilTagHasTargets;
     }
 
+    public boolean specificAprilTagDetected (int aprilTagId) {
+        if (aprilTagDectected()) {
+            for (var target : ((aprilTagCamera.getAllUnreadResults()).get((aprilTagCamera.getAllUnreadResults()).size() - 1)).getTargets()) {
+                if (target.getFiducialId() == aprilTagId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public double getSpecificAprilTagYaw (int aprilTagId) {
+        for (var target : ((aprilTagCamera.getAllUnreadResults()).get((aprilTagCamera.getAllUnreadResults()).size() - 1)).getTargets()) {
+            if (target.getFiducialId() == aprilTagId) {
+                return target.getYaw();
+            }
+        }
+        return 9999;
+    }
+
     public boolean noteDetected() {
         return noteHasTargets;
     }
