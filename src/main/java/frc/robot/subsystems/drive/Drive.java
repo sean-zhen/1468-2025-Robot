@@ -26,10 +26,12 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -43,6 +45,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -56,6 +59,9 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
+  private static final double deadband = 0.10;
+  final Joystick driverLeftJoystick = new Joystick(0);
+
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
@@ -366,19 +372,43 @@ public class Drive extends SubsystemBase {
     };
   }
 
+  private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
+    // Apply deadband
+    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), deadband);
+    Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+
+    // Square magnitude for more precise control
+    linearMagnitude = linearMagnitude * linearMagnitude;
+
+    // Return new linear velocity
+    return new Pose2d(new Translation2d(), linearDirection)
+        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+        .getTranslation();
+  }
+
   // TODO: Add this to official code
-  /**Runs the swerve with specified drive and rotation speeds. */
-  public void driveWithSpeeds (double xSpeed, double ySpeed, double omega, boolean isFieldRelative) {
+  /**Runs the swerve with specified drive and rotation speeds. 
+   * Make sure xSpeed, ySpeed, and omegaSpeed are greater than deadband constant in Drive.java.
+  */
+  public void driveWithSpeeds (double xSpeed, double ySpeed, double omegaSpeed, boolean isFieldRelative) {
+    Translation2d linearVelocity = getLinearVelocityFromJoysticks(xSpeed, ySpeed);
+          
+    // Apply rotation deadband
+    double omega = MathUtil.applyDeadband(omegaSpeed, deadband);
+
+    // Square rotation value for more precise control
+    omega = Math.copySign(omega * omega, omega);
+
     // Convert inputs to chassis speeds
     ChassisSpeeds speeds = isFieldRelative
     ? ChassisSpeeds.fromFieldRelativeSpeeds(
-        xSpeed * getMaxLinearSpeedMetersPerSec(),
-        ySpeed * getMaxLinearSpeedMetersPerSec(),
+        linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
+        linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
         omega * getMaxAngularSpeedRadPerSec(),
         getRotation())
     : new ChassisSpeeds(
-        xSpeed * getMaxLinearSpeedMetersPerSec(),
-        ySpeed * getMaxLinearSpeedMetersPerSec(),
+        linearVelocity.getX() * getMaxLinearSpeedMetersPerSec(),
+        linearVelocity.getY() * getMaxLinearSpeedMetersPerSec(),
         omega * getMaxAngularSpeedRadPerSec());
 
     // Pass the chassis speeds to your swerve drive system

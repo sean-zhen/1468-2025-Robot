@@ -10,8 +10,8 @@ public class DriveToNoteCommand extends Command {
     private final double yawTolerance = 5.0;            // degrees
     private final double strafeTolerance = 2.0;
     private final double xDriveSpeed = 0.25;              // percentage
-    private final double yDriveSpeed = 0.10;
-    private final double rotationSpeed = 0.15;           // percentage 
+    private final double yDriveSpeed = 0.20;
+    private final double rotationSpeed = 0.25;           // percentage 
     private boolean isAligned = false;                  // Tracks whether alignment is achieved  
     
     private final Drive m_drive;
