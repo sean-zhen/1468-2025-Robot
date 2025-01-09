@@ -8,9 +8,9 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.*;
 
 public class AimAtAprilTagCommand extends Command {
-    private final double targetYaw = -5.5;      // Desired yaw value to align to
-    private final double yawTolerance = 5.0;    // degrees
-    private final double rotationSpeed = 0.15;  // percentage
+    private final double targetYaw = -2.0;      // Desired yaw value to align to
+    private final double yawTolerance = 2.0;    // degrees
+    private final double rotationSpeed = 0.25;  // percentage
 
     final Joystick driverLeftJoystick = new Joystick(0);
 
@@ -33,23 +33,30 @@ public class AimAtAprilTagCommand extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        double xSpeed = -driverLeftJoystick.getY();
+        double ySpeed = -driverLeftJoystick.getX();
+
         if (m_vision.specificAprilTagDetected(aprilTagId)) {
-            SmartDashboard.putString("AimAtAprilTag Status", "ACTIVE");
             if ((Math.abs(m_vision.getSpecificAprilTagYaw(aprilTagId)) - Math.abs(targetYaw)) > yawTolerance) {
                 if (m_vision.getSpecificAprilTagYaw(aprilTagId) < targetYaw) {
                     // Rotate CCW
                     SmartDashboard.putString("AimAtAprilTag Status", "CCW");
-                    m_drive.driveWithSpeeds(-driverLeftJoystick.getY(), -driverLeftJoystick.getX(), rotationSpeed, false); 
+                    m_drive.driveWithSpeeds(xSpeed, ySpeed, rotationSpeed, true); 
                 }
                 else {
                     // Rotate CW
                     SmartDashboard.putString("AimAtAprilTag Status", "CW");
-                    m_drive.driveWithSpeeds(-driverLeftJoystick.getY(), -driverLeftJoystick.getX(), -rotationSpeed, false);
+                    m_drive.driveWithSpeeds(xSpeed, ySpeed, -rotationSpeed, true);
                 }
+            }
+            else {
+                SmartDashboard.putString("AimAtAprilTag Status", "No rotation");
+                m_drive.driveWithSpeeds(xSpeed, ySpeed, 0, true);
             }
         }
         else {
-            SmartDashboard.putString("AimAtAprilTag Status", "APRILTAG NOT SEEN");
+            SmartDashboard.putString("AimAtAprilTag Status", "APRILTAG 7 NOT SEEN");
+            m_drive.driveWithSpeeds(xSpeed, ySpeed, 0, true);
         }
     }
 

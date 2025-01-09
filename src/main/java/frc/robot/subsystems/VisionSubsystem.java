@@ -43,6 +43,9 @@ public class VisionSubsystem extends SubsystemBase{
     private double noteTargetPitch = 0;
     private double noteTargetArea = 0;
 
+    private boolean aprilTag7Detected = false; 
+    private double aprilTag7Yaw = 0;
+
     public VisionSubsystem() {
         // Additional initialization if needed
     }
@@ -57,10 +60,19 @@ public class VisionSubsystem extends SubsystemBase{
             // Camera processed a new frame since last
             // Get the last one in the list.
             var aprilTagResult = aprilTagResults.get(aprilTagResults.size() - 1);
-
+            aprilTag7Detected = false;  // reset to false after true
+            
             if (aprilTagResult.hasTargets()) {
                 // At least one AprilTag was seen by the camera
                 aprilTagHasTargets = true;
+                aprilTag7Detected = false;  // reset to false after true
+
+                for (var target : aprilTagResult.getTargets()) {
+                    if (target.getFiducialId() == 7) {
+                        aprilTag7Detected = true;
+                        aprilTag7Yaw = target.getYaw();
+                    }
+                }
 
                 // Get a list of currently tracked targets.
                 List<PhotonTrackedTarget> aprilTagTargets = aprilTagResult.getTargets();
@@ -153,26 +165,14 @@ public class VisionSubsystem extends SubsystemBase{
     }
 
     public boolean specificAprilTagDetected (int aprilTagId) {
-        if (aprilTagDectected()) {
-            for (var target : ((aprilTagCamera.getAllUnreadResults()).get((aprilTagCamera.getAllUnreadResults()).size() - 1)).getTargets()) {
-                if (target.getFiducialId() == aprilTagId) {
-                    return true;
-                }
-            }
-            return false;
+        if (aprilTagId == 7) {
+            return aprilTag7Detected;
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     public double getSpecificAprilTagYaw (int aprilTagId) {
-        for (var target : ((aprilTagCamera.getAllUnreadResults()).get((aprilTagCamera.getAllUnreadResults()).size() - 1)).getTargets()) {
-            if (target.getFiducialId() == aprilTagId) {
-                return target.getYaw();
-            }
-        }
-        return 9999;
+        return aprilTag7Yaw;
     }
 
     public boolean noteDetected() {
